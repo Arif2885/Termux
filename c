@@ -2,24 +2,15 @@
 # --- ⚙️ Custom Task Sequence Builder & Runner Function (FIXED with SMART_CLICK & REPEAT) ---
 # -----------------------------------------------------------
 
-# Note: pytesseract, Image, io, re, asyncio, random, TelegramClient, 
-#       DEFAULT_SLEEP_TIME, B, C, G, P, R, Y, BOLD, RESET must be available globally/imported.
-# ✅ এই ফাংশনটি ব্যবহার করার জন্য আপনার স্ক্রিপ্টের শুরুতে import time যোগ করতে ভুলতে না।
-
-import time 
-import re # <<< Smart Click এর জন্য re (regex) ইম্পোর্ট নিশ্চিত করুন
 
 async def build_custom_task_sequence(api_id, api_hash, session_files):
     """
     Allows the user to define a sequence of tasks for multiple bots sequentially 
     and executes that entire sequence on selected sessions for a specified number of repetitions.
-    
-    FIXES APPLIED: 
-    1. Added new task option 'SMART_CLICK' (Option 11) for Auto Join/Start Bot.
-    2. Shifted 'Wait Bot Replay' to Option 12.
-    3. Shifted 'Add another Bot' to Option 13.
-    4. Added Repetition Loop option (New Section B.1).
     """
+    
+    # 💡 এখানে Global ভেরিয়েবল ব্যবহার করা হয়েছে
+    global CURRENT_MIN_SLEEP, CURRENT_MAX_SLEEP
     
     # ❌ কোনো সেশন ফাইল খুঁজে পাওয়া না গেলে
     if not session_files:
@@ -28,13 +19,15 @@ async def build_custom_task_sequence(api_id, api_hash, session_files):
 
     print(f"\n{C}{BOLD}--- ⚙️ SEQUENTIAL MULTI-BOT TASK SEQUENCE BUILDER ---{RESET}")
     
-    # এটি সমস্ত বটের জন্য টাস্ক সিকোয়েন্স সংরক্ষণ করবে
+    # [A. Bot and Task Sequence Input Loop -- Unchanged]
+    # ... (Code for bot_task_sequences creation) ...
+    # [ ... ]
+    
+    # ------------------------------------------------------
+    # --- A. Bot and Task Sequence Input Loop (Skipped for brevity) ---
+    # ------------------------------------------------------
     bot_task_sequences = [] 
-    
-    # ------------------------------------------------------
-    # --- A. Bot and Task Sequence Input Loop (UNMODIFIED) ---
-    # ------------------------------------------------------
-    
+    # [Insert the full A. section here if running]
     while True:
         # 1. Referral Link Input
         print(f"\n{G}{BOLD}--- 🤖 Starting Task Sequence Creation for New Bot ---{RESET}")
@@ -91,11 +84,8 @@ async def build_custom_task_sequence(api_id, api_hash, session_files):
             print(f"{C}8. {B}Send Message {G}(From File Username){RESET}") 
             print(f"{C}9. {B}Math Captcha Solv {G}(Auto){RESET}")
             print(f"{C}10. {B}Bot Message Delete {G}(Last Message){RESET}")
-            # ✅ NEW OPTION 11
             print(f"{C}11. {B}Smart Inline Link Click {G}(Auto Join/Start Bot){RESET}")
-            # ✅ SHIFTED TO 12
             print(f"{C}12. {B}Wait Bot Replay {G}(Wait until the bot replies){RESET}")
-            # ✅ SHIFTED TO 13
             print(f"{C}13. {B}Add another Bot {G}(Start next bot's tasks){RESET}") 
             
             choice = input(f"{C}➡️ Select Task (1-13) or press Enter to finish: {RESET}").strip()
@@ -146,17 +136,14 @@ async def build_custom_task_sequence(api_id, api_hash, session_files):
             elif choice == '10':
                 task_data = ('DELETE_BOT_MESSAGE', None)
             
-            # ✅ NEW OPTION 11
             elif choice == '11':
                 button_text = input(f"{Y}➡️ Enter Inline Button Text to Auto Handle: {RESET}").strip()
                 if button_text:
                     task_data = ('SMART_CLICK', button_text)
 
-            # ✅ SHIFTED OPTION 12 (was 11)
             elif choice == '12':
                 task_data = ('WAIT_FOR_REPLY', None)
 
-            # ✅ SHIFTED OPTION 13 (was 12)
             elif choice == '13':
                 if not current_bot_tasks:
                     print(f"{R}⚠️ No tasks have been added for this bot.{RESET}")
@@ -191,9 +178,9 @@ async def build_custom_task_sequence(api_id, api_hash, session_files):
         return
         
     print(f"\n{G}✅ Tasks set for a total of {B}{len(bot_task_sequences)}{G} bots.{RESET}")
-    
+
     # ------------------------------------------------------
-    # --- B.1. Repetition Input (NEW SECTION) ---
+    # --- B.1. Repetition Input (Unchanged) ---
     # ------------------------------------------------------
     num_repetitions = 1 # ডিফল্ট মান
     while True:
@@ -213,12 +200,11 @@ async def build_custom_task_sequence(api_id, api_hash, session_files):
 
     print(f"{G}✅ The entire sequence will be repeated {B}{num_repetitions}{G} time(s).{RESET}")
     # ------------------------------------------------------
+    
     # ------------------------------------------------------
-
-
+    # --- B. Session Selection (Skipped for brevity) ---
     # ------------------------------------------------------
-    # --- B. Session Selection (Unchanged) ---
-    # ------------------------------------------------------
+    # [Insert the full B. section here if running]
     print(f"\n{C}{BOLD}--- Available Session Files ({len(session_files)} Total) ---{RESET}")
     session_map = {i: session_file for i, session_file in enumerate(session_files, 1)}
     
@@ -243,9 +229,11 @@ async def build_custom_task_sequence(api_id, api_hash, session_files):
             print(f"{R}❌ Invalid input format. Please use comma-separated numbers (e.g., 1,2,3) or type ALL.{RESET}")
 
     print(f"\n{G}✅ Starting execution on {B}{len(sessions_to_use)}{G} sessions...{RESET}")
+    # ------------------------------------------------------
+
 
     # ------------------------------------------------------
-    # --- C. Run Tasks (Sequential Multi-Bot Execution Loop) ---
+    # --- C. Run Tasks (Sequential Multi-Bot Execution Loop - MODIFIED) ---
     # ------------------------------------------------------
 
     # Ensure Tesseract Path is set (based on your system path)
@@ -255,7 +243,7 @@ async def build_custom_task_sequence(api_id, api_hash, session_files):
     except:
         pass
 
-    # --- REPETITION LOOP (OUTERMOST LOOP) --- (NEW)
+    # --- REPETITION LOOP (OUTERMOST LOOP) ---
     for rep_count in range(1, num_repetitions + 1):
         print(f"\n{Y}{BOLD}--- 🔁 REPETITION {rep_count} of {num_repetitions} ---{RESET}")
 
@@ -267,7 +255,7 @@ async def build_custom_task_sequence(api_id, api_hash, session_files):
             try:
                 # Import all necessary telethon types inside the try block 
                 from telethon.tl.functions.channels import JoinChannelRequest
-                from telethon.tl.functions.messages import ImportChatInviteRequest # For private join fix
+                from telethon.tl.functions.messages import ImportChatInviteRequest 
                 from telethon.tl.types import (
                     KeyboardButtonRequestPeer, 
                     KeyboardButtonRequestPhone, 
@@ -279,11 +267,23 @@ async def build_custom_task_sequence(api_id, api_hash, session_files):
                 if not await client.is_user_authorized():
                     print(f"{R}❌ Error: Session {P}{session_file}{R} is not authorized. Skipping.{RESET}")
                     await client.disconnect()
-                    await asyncio.sleep(DEFAULT_SLEEP_TIME)
+                    # ❌ এই ডিলেটি দরকার নেই কারণ লুপের শেষে র্যান্ডম ডিলে যুক্ত হবে
+                    # await asyncio.sleep(DEFAULT_SLEEP_TIME) 
+                    
+                    # ✅ এখানে র্যান্ডম ডিলে যুক্ত করা হলো (আপনার অনুরোধ অনুযায়ী)
+                    # Note: random_delay ফাংশনটি বাইরে সংজ্ঞায়িত করা আবশ্যক
+                    try:
+                        await random_delay(CURRENT_MIN_SLEEP, CURRENT_MAX_SLEEP)
+                    except NameError:
+                        # যদি ভেরিয়েবল বা ফাংশন না পাওয়া যায়
+                        await asyncio.sleep(5) 
+
                     continue
 
                 # --- Bot Loop (Inner) ---
                 for bot_config in bot_task_sequences:
+                    # ... (Inner Bot Loop Logic - Unchanged) ...
+                    # [Insert the full inner bot loop logic here]
                     bot_username = bot_config['username']
                     command = bot_config['command']
                     task_sequence = bot_config['tasks']
@@ -617,7 +617,7 @@ async def build_custom_task_sequence(api_id, api_hash, session_files):
                                 print(f"{R}❌ Failed to delete message: {type(e).__name__} - {e}{RESET}")
                             await asyncio.sleep(2)
                         
-                        # Small random delay between tasks to look more human
+                        # Small random delay between tasks to look more human (Already Present)
                         await asyncio.sleep(random.uniform(1, 2)) 
                     
                     print(f"{G}{BOLD}--- ✅ Tasks completed for bot @{bot_username} ---{RESET}")
@@ -627,6 +627,7 @@ async def build_custom_task_sequence(api_id, api_hash, session_files):
             except (UserDeactivatedBanError, AuthKeyUnregisteredError):
                 print(f"{R}💀 Error: Session {P}{session_file}{R} is banned or deleted. Skipping.{RESET}")
             except FloodWaitError as e:
+                # ✅ ফ্লাড ওয়েট হ্যান্ডলিং (আগের কোডের মতো)
                 print(f"{R}⏳ [{P}{session_file}{R}] Flood wait error. Waiting for {e.seconds}s.{RESET}")
                 await asyncio.sleep(e.seconds)
             except Exception as e:
@@ -634,7 +635,14 @@ async def build_custom_task_sequence(api_id, api_hash, session_files):
             finally:
                 if client and client.is_connected():
                     await client.disconnect()
-            await asyncio.sleep(DEFAULT_SLEEP_TIME)
+            
+            # 💡 এইখানে আপনার অনুরোধ করা সেশন-টু-সেশন র্যান্ডম ডিলে যুক্ত করা হলো:
+            try:
+                await random_delay(CURRENT_MIN_SLEEP, CURRENT_MAX_SLEEP)
+            except NameError:
+                # যদি random_delay বা ভেরিয়েবল সংজ্ঞায়িত না থাকে, ডিফল্ট ডিলে ব্যবহার করা হলো
+                print(f"{Y}⚠️ random_delay/CURRENT_SLEEP not defined. Using fixed 5s delay.{RESET}")
+                await asyncio.sleep(5) 
             
         # --- Session Loop End ---
     # --- REPETITION LOOP END ---
